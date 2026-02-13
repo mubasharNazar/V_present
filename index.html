@@ -241,9 +241,6 @@
 
     /* ---------- mobile adjustments ---------- */
     @media (max-width: 600px) {
-      body {
-        align-items: flex-start;
-      }
       .card {
         padding: 30px 20px;
         margin: 20px auto;
@@ -414,6 +411,9 @@
     btnYes.addEventListener('click', function() {
       questionView.style.display = 'none';
       successView.classList.add('show');
+      // Switch to scrollable top-aligned layout for the long message
+      document.body.style.alignItems = 'flex-start';
+      window.scrollTo(0, 0);
       launchConfetti();
     });
 
