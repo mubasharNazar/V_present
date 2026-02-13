@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>For You</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a0000, #330000, #1a0000);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Georgia', serif;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ---------- floating hearts background ---------- */
+    .hearts-bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .hearts-bg span {
+      position: absolute;
+      bottom: -40px;
+      font-size: 24px;
+      animation: floatUp linear infinite;
+      opacity: 0.5;
+    }
+    @keyframes floatUp {
+      0%   { transform: translateY(0) rotate(0deg); opacity: 0.5; }
+      100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
+    }
+
+    /* ---------- balloons ---------- */
+    .balloon {
+      position: fixed;
+      bottom: -160px;
+      width: 80px;
+      height: 100px;
+      border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+      animation: riseBalloon linear infinite;
+      opacity: 0.85;
+      z-index: 0;
+    }
+    .balloon::after {
+      content: '';
+      position: absolute;
+      bottom: -60px;
+      left: 50%;
+      width: 2px;
+      height: 60px;
+      background: rgba(255,255,255,0.4);
+      transform: translateX(-50%);
+    }
+    @keyframes riseBalloon {
+      0%   { transform: translateY(0) translateX(0); opacity: 0.85; }
+      50%  { transform: translateY(-50vh) translateX(30px); }
+      100% { transform: translateY(-120vh) translateX(-20px); opacity: 0; }
+    }
+
+    /* ---------- flowers ---------- */
+    .flower-container {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-around;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .flower {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: sway 3s ease-in-out infinite alternate;
+    }
+    .flower-head {
+      position: relative;
+      width: 50px;
+      height: 50px;
+    }
+    .petal {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: #e63946;
+      border-radius: 50% 50% 50% 0;
+      top: 50%;
+      left: 50%;
+    }
+    .petal:nth-child(1) { transform: translate(-50%,-50%) rotate(0deg) translateY(-12px); }
+    .petal:nth-child(2) { transform: translate(-50%,-50%) rotate(60deg) translateY(-12px); }
+    .petal:nth-child(3) { transform: translate(-50%,-50%) rotate(120deg) translateY(-12px); }
+    .petal:nth-child(4) { transform: translate(-50%,-50%) rotate(180deg) translateY(-12px); }
+    .petal:nth-child(5) { transform: translate(-50%,-50%) rotate(240deg) translateY(-12px); }
+    .petal:nth-child(6) { transform: translate(-50%,-50%) rotate(300deg) translateY(-12px); }
+    .flower-center {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      background: #ffb703;
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%,-50%);
+      z-index: 1;
+    }
+    .stem {
+      width: 4px;
+      height: 70px;
+      background: #2d6a4f;
+      border-radius: 2px;
+    }
+    @keyframes sway {
+      0%   { transform: rotate(-5deg); }
+      100% { transform: rotate(5deg); }
+    }
+
+    /* ---------- main card ---------- */
+    .card {
+      position: relative;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 24px;
+      padding: 50px 40px;
+      text-align: center;
+      max-width: 520px;
+      width: 90%;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      transition: transform 0.5s, opacity 0.5s;
+    }
+
+    .card h1 {
+      color: #fff;
+      font-size: 2rem;
+      margin-bottom: 10px;
+      text-shadow: 0 0 20px rgba(255,70,70,0.6);
+    }
+    .card .heart-icon {
+      font-size: 3rem;
+      display: block;
+      margin-bottom: 16px;
+      animation: pulse 1s ease-in-out infinite alternate;
+    }
+    @keyframes pulse {
+      0%   { transform: scale(1); }
+      100% { transform: scale(1.2); }
+    }
+
+    .card p.question {
+      color: #ffc2c2;
+      font-size: 1.35rem;
+      margin-bottom: 36px;
+      font-style: italic;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      position: relative;
+    }
+
+    .btn {
+      padding: 14px 44px;
+      font-size: 1.15rem;
+      font-family: 'Georgia', serif;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: bold;
+      letter-spacing: 1px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-yes {
+      background: linear-gradient(135deg, #e63946, #ff4d6d);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(230,57,70,0.5);
+    }
+    .btn-yes:hover {
+      transform: scale(1.08);
+      box-shadow: 0 6px 28px rgba(230,57,70,0.7);
+    }
+    .btn-no {
+      background: linear-gradient(135deg, #555, #777);
+      color: #fff;
+      position: relative;
+      z-index: 20;
+    }
+
+    /* ---------- success screen ---------- */
+    .success {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+    }
+    .success.show {
+      display: flex;
+      animation: fadeIn 0.8s ease forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .success .gf-photo {
+      width: 220px;
+      height: 220px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 4px solid #ff4d6d;
+      box-shadow: 0 0 30px rgba(255,77,109,0.5);
+      margin-bottom: 24px;
+    }
+    .success .message {
+      color: #ffc2c2;
+      font-size: 1.2rem;
+      line-height: 1.7;
+      max-width: 400px;
+    }
+    .success h2 {
+      color: #fff;
+      font-size: 1.8rem;
+      margin-bottom: 16px;
+      text-shadow: 0 0 20px rgba(255,70,70,0.6);
+    }
+
+    /* ---------- confetti ---------- */
+    .confetti-piece {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      top: -20px;
+      z-index: 100;
+      animation: confettiFall linear forwards;
+    }
+    @keyframes confettiFall {
+      0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- floating hearts -->
+  <div class="hearts-bg" id="heartsBg"></div>
+
+  <!-- flowers along the bottom -->
+  <div class="flower-container" id="flowerContainer"></div>
+
+  <!-- main card -->
+  <div class="card" id="card">
+    <!-- question view -->
+    <div id="questionView">
+      <span class="heart-icon">&#10084;&#65039;</span>
+      <h1>Hey Beautiful</h1>
+      <p class="question">Would you be my Valentine?</p>
+      <div class="buttons">
+        <button class="btn btn-yes" id="btnYes">Yes!</button>
+        <button class="btn btn-no" id="btnNo">No</button>
+      </div>
+    </div>
+
+    <!-- success view -->
+    <div class="success" id="successView">
+      <h2>Yaaay! &#10084;&#65039;</h2>
+      <!-- Replace src with your girlfriend's photo -->
+      <img class="gf-photo" src="WhatsApp Image 2026-02-13 at 7.15.10 PM.jpeg" alt="My Love">
+      <p class="message">
+        Happy Valentine's Day, my love.<br><br>
+        Every day with you feels special, but today I just want to remind you how grateful I am to have you in my life. You bring peace to my chaos, light to my darkest days, and a smile that instantly makes everything better.<br><br>
+        You're not just my girlfriend, you're my best friend, my safe place, and my biggest blessing. I'm so proud to love you and be loved by you.<br><br>
+        No matter where life takes us, I promise to stand by you, support you, and choose you every single day.<br><br>
+        I love you more than words can explain. &#10084;&#65039;
+      </p>
+    </div>
+  </div>
+
+  <script>
+    /* ========== Generate background decorations ========== */
+
+    // Floating hearts
+    const heartsBg = document.getElementById('heartsBg');
+    const heartSymbols = ['\u2764', '\u2665', '\u2763', '\uD83D\uDC95', '\uD83C\uDF39'];
+    for (let i = 0; i < 25; i++) {
+      const span = document.createElement('span');
+      span.textContent = heartSymbols[Math.floor(Math.random() * heartSymbols.length)];
+      span.style.left = Math.random() * 100 + '%';
+      span.style.fontSize = (16 + Math.random() * 20) + 'px';
+      span.style.animationDuration = (6 + Math.random() * 8) + 's';
+      span.style.animationDelay = Math.random() * 10 + 's';
+      heartsBg.appendChild(span);
+    }
+
+    // Balloons
+    const balloonColors = ['#e63946','#ff4d6d','#d62828','#ff758f','#c1121f'];
+    for (let i = 0; i < 8; i++) {
+      const b = document.createElement('div');
+      b.classList.add('balloon');
+      b.style.left = (5 + Math.random() * 90) + '%';
+      b.style.background = balloonColors[Math.floor(Math.random() * balloonColors.length)];
+      b.style.animationDuration = (10 + Math.random() * 10) + 's';
+      b.style.animationDelay = Math.random() * 12 + 's';
+      b.style.width = (60 + Math.random() * 30) + 'px';
+      b.style.height = (75 + Math.random() * 35) + 'px';
+      document.body.appendChild(b);
+    }
+
+    // Flowers
+    const flowerContainer = document.getElementById('flowerContainer');
+    const petalColors = ['#e63946','#d62828','#ff4d6d','#c1121f','#ff758f'];
+    for (let i = 0; i < 9; i++) {
+      const flower = document.createElement('div');
+      flower.classList.add('flower');
+      flower.style.animationDelay = (Math.random() * 2) + 's';
+      const color = petalColors[Math.floor(Math.random() * petalColors.length)];
+      flower.innerHTML = `
+        <div class="flower-head">
+          <div class="petal" style="background:${color}"></div>
+          <div class="petal" style="background:${color}"></div>
+          <div class="petal" style="background:${color}"></div>
+          <div class="petal" style="background:${color}"></div>
+          <div class="petal" style="background:${color}"></div>
+          <div class="petal" style="background:${color}"></div>
+          <div class="flower-center"></div>
+        </div>
+        <div class="stem"></div>`;
+      flowerContainer.appendChild(flower);
+    }
+
+    /* ========== Button logic ========== */
+
+    const btnNo = document.getElementById('btnNo');
+    const btnYes = document.getElementById('btnYes');
+    const questionView = document.getElementById('questionView');
+    const successView = document.getElementById('successView');
+
+    // Make "No" button run away on hover / touch
+    function escapeButton() {
+      const card = document.getElementById('card');
+      const cardRect = card.getBoundingClientRect();
+      const btnRect = btnNo.getBoundingClientRect();
+
+      // Calculate bounds within the card
+      const maxX = cardRect.width - btnRect.width - 20;
+      const maxY = cardRect.height - btnRect.height - 20;
+
+      let newX = Math.random() * maxX - maxX / 2;
+      let newY = Math.random() * maxY - maxY / 2;
+
+      // Clamp so it stays roughly inside the card area
+      newX = Math.max(-cardRect.width / 2 + 40, Math.min(newX, cardRect.width / 2 - 40));
+      newY = Math.max(-cardRect.height / 2 + 20, Math.min(newY, cardRect.height / 2 - 20));
+
+      btnNo.style.position = 'relative';
+      btnNo.style.transition = 'all 0.25s ease';
+      btnNo.style.left = newX + 'px';
+      btnNo.style.top = newY + 'px';
+
+      // Change text to funny messages
+      const noTexts = ['No', 'Nope!', 'Think again!', 'Not happening!', 'Try again ;)', 'Are you sure?', 'Really?!', 'Catch me!'];
+      btnNo.textContent = noTexts[Math.floor(Math.random() * noTexts.length)];
+    }
+
+    btnNo.addEventListener('mouseenter', escapeButton);
+    btnNo.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      escapeButton();
+    });
+    // Fallback: even if they somehow click it
+    btnNo.addEventListener('click', escapeButton);
+
+    // "Yes" button => show success
+    btnYes.addEventListener('click', function() {
+      questionView.style.display = 'none';
+      successView.classList.add('show');
+      launchConfetti();
+    });
+
+    /* ========== Confetti burst ========== */
+    function launchConfetti() {
+      const colors = ['#e63946','#ff4d6d','#ffb703','#fb8500','#ff758f','#fff','#d62828'];
+      for (let i = 0; i < 80; i++) {
+        const piece = document.createElement('div');
+        piece.classList.add('confetti-piece');
+        piece.style.left = Math.random() * 100 + '%';
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.width = (6 + Math.random() * 8) + 'px';
+        piece.style.height = (6 + Math.random() * 8) + 'px';
+        piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+        piece.style.animationDuration = (2 + Math.random() * 3) + 's';
+        piece.style.animationDelay = Math.random() * 1.5 + 's';
+        document.body.appendChild(piece);
+        setTimeout(() => piece.remove(), 5000);
+      }
+    }
+  </script>
+</body>
+</html>
